@@ -3,18 +3,18 @@ import { Text, View, TouchableOpacity, SafeAreaView } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 import User from '../components/User'
 import styles from '../public/styles/styles'
-import * as firebase from 'firebase';
+import firebase from 'firebase';
 import { FlatList } from 'react-native-gesture-handler'
 
 export default class Home extends Component {
 
     state = {
         users: [],
+        dbRef: firebase.database().ref('users'),
     }
 
-    componentDidMount() {
-        let dbRef = firebase.database().ref('users');
-        dbRef.on('child_added', (val) => {
+    componentDidMount() {       
+        this.state.dbRef.on('child_added', (val) => {
             let person = val.val();
             person.phone = val.key;
             if (person.phone === User.phone) {
@@ -27,6 +27,10 @@ export default class Home extends Component {
                 })
             }         
         })
+    }
+
+    componentWillUnmount() {
+        this.state.dbRef.off()
     }
 
     renderRow = ({item}) => {
